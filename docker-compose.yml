@@ -1,0 +1,20 @@
+services:
+  app:
+    container_name: place-marker-app
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./
+    restart: on-failure
+
+  nginx:
+    container_name: place-marker-nginx
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "80:80"
+    links:
+      - app
+    depends_on:
+      - app
+    restart: always
