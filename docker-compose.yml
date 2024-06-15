@@ -4,6 +4,8 @@ services:
     build:
       dockerfile: Dockerfile.dev
       context: ./
+    environment:
+      CLIENT_ID: ${CLIENT_ID}
     restart: on-failure
 
   nginx:
