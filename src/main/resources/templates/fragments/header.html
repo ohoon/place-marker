@@ -17,7 +17,7 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
     <!-- Naver Map -->
-    <script type="text/javascript" th:src="@{https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId={id}(id=${@environment.getProperty('CLIENT_ID')})}"></script>
+    <script type="text/javascript" th:src="@{https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId={id}&submodules=geocoder(id=${@environment.getProperty('CLIENT_ID')})}"></script>
     <!-- My CSS -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <!-- Title -->
