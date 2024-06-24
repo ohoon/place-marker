@@ -8,9 +8,20 @@
             <div id="map" style="width:100%;height:400px;"></div>
         </div>
         <div class="col">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="도로명 주소" aria-label="도로명 주소">
-                <button class="btn btn-outline-secondary" type="button">추가</button>
+            <div class="row" id="address">
+                <input type="text" class="form-control" name="address-input" placeholder="도로명 주소" aria-label="도로명 주소">
+            </div>
+            <div class="row">
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        onclick="addInput()"
+                ><i class="bi bi-plus-circle"></i></button>
+            </div>
+            <div class="row">
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        onclick="addMarker()"
+                >마커 추가</button>
             </div>
         </div>
     </div>
@@ -29,13 +40,12 @@
 
     const infoWindow = new naver.maps.InfoWindow();
 
-
     function onSuccessGeolocation(position) {
         const location = new naver.maps.LatLng(position.coords.latitude,
             position.coords.longitude);
 
-        map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
-        map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
+        map.setCenter(location);
+        map.setZoom(10);
     }
 
     $(window).on("load", function() {
@@ -47,6 +57,55 @@
             infoWindow.open(map, center);
         }
     });
+
+    let markers = {};
+
+    function addInput() {
+        const newInput = document.createElement("input");
+        newInput.setAttribute("type", "text");
+        newInput.setAttribute("class", "form-control");
+        newInput.setAttribute("name", "address-input");
+        newInput.setAttribute("placeholder", "도로명 주소");
+        newInput.setAttribute("aria-label", "도로명 주소");
+        document.getElementById("address").appendChild(newInput);
+    }
+
+    function clearMarkers() {
+        const markerInstances = Object.values(markers);
+        for (let i = 0; i < markerInstances.length; i++) {
+            markerInstances[i].setMap(null);
+        }
+
+        markers = {};
+    }
+
+    function addMarker() {
+        const addressInputs = document.getElementsByName("address-input");
+        clearMarkers();
+        for (let i = 0; i < addressInputs.length; i++) {
+            const query = addressInputs[i].value;
+            naver.maps.Service.geocode({
+                query: query
+            }, function(status, response) {
+                if (status !== naver.maps.Service.Status.OK || response.v2.meta.totalCount === 0) {
+                    addressInputs[i].setAttribute("class", "form-control is-invalid");
+                    return;
+                }
+
+                const result = response.v2;
+                const items = result.addresses;
+                markers = {
+                    ...markers,
+                    [query]: new naver.maps.Marker({
+                        position: new naver.maps.LatLng(items[0].y, items[0].x),
+                        map: map
+                    })
+                };
+
+                addressInputs[i].setAttribute("class", "form-control");
+            });
+        }
+    }
 </script>
 </body>
 </html>
