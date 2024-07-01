@@ -9,7 +9,10 @@
         </div>
         <div class="col">
             <div class="row" id="address">
-                <input type="text" class="form-control" name="address-input" placeholder="도로명 주소" aria-label="도로명 주소">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="name-input" placeholder="명칭" aria-label="명칭">
+                    <input type="text" class="form-control w-auto" name="address-input" placeholder="도로명 주소" aria-label="도로명 주소">
+                </div>
             </div>
             <div class="row">
                 <button class="btn btn-outline-secondary"
@@ -59,15 +62,29 @@
     });
 
     let markers = {};
+    const infowindow = new naver.maps.InfoWindow();
 
     function addInput() {
-        const newInput = document.createElement("input");
-        newInput.setAttribute("type", "text");
-        newInput.setAttribute("class", "form-control");
-        newInput.setAttribute("name", "address-input");
-        newInput.setAttribute("placeholder", "도로명 주소");
-        newInput.setAttribute("aria-label", "도로명 주소");
-        document.getElementById("address").appendChild(newInput);
+        const newNameInput = document.createElement("input");
+        newNameInput.setAttribute("type", "text");
+        newNameInput.setAttribute("class", "form-control");
+        newNameInput.setAttribute("name", "name-input");
+        newNameInput.setAttribute("placeholder", "명칭");
+        newNameInput.setAttribute("aria-label", "명칭");
+
+        const newAddressInput = document.createElement("input");
+        newAddressInput.setAttribute("type", "text");
+        newAddressInput.setAttribute("class", "form-control w-auto");
+        newAddressInput.setAttribute("name", "address-input");
+        newAddressInput.setAttribute("placeholder", "도로명 주소");
+        newAddressInput.setAttribute("aria-label", "도로명 주소");
+
+        const newInputGroup = document.createElement("div");
+        newInputGroup.setAttribute("class", "input-group");
+        newInputGroup.appendChild(newNameInput);
+        newInputGroup.appendChild(newAddressInput);
+
+        document.getElementById("address").appendChild(newInputGroup);
     }
 
     function clearMarkers() {
@@ -80,29 +97,46 @@
     }
 
     function addMarker() {
+        const nameInputs = document.getElementsByName("name-input");
         const addressInputs = document.getElementsByName("address-input");
         clearMarkers();
         for (let i = 0; i < addressInputs.length; i++) {
-            const query = addressInputs[i].value;
+            const nm = nameInputs[i].value;
+            const adrr = addressInputs[i].value;
             naver.maps.Service.geocode({
-                query: query
+                query: adrr
             }, function(status, response) {
                 if (status !== naver.maps.Service.Status.OK || response.v2.meta.totalCount === 0) {
-                    addressInputs[i].setAttribute("class", "form-control is-invalid");
+                    addressInputs[i].setAttribute("class", "form-control w-auto is-invalid");
                     return;
                 }
 
                 const result = response.v2;
                 const items = result.addresses;
+                const marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng(items[0].y, items[0].x),
+                    map: map
+                });
+                const infoContent = '<div class="container">' +
+                    '<h4>' + nm + '</h4>' +
+                    '<span>' + items[0].roadAddress + '</span>' +
+                    '</div>';
+
                 markers = {
                     ...markers,
-                    [query]: new naver.maps.Marker({
-                        position: new naver.maps.LatLng(items[0].y, items[0].x),
-                        map: map
-                    })
+                    [adrr]: marker
                 };
 
-                addressInputs[i].setAttribute("class", "form-control");
+                naver.maps.Event.addListener(marker, "click", function(e) {
+                    if (infowindow.getMap()) {
+                        infowindow.close();
+                    } else {
+                        infowindow.setContent(infoContent);
+                        infowindow.open(map, marker);
+                    }
+                });
+
+                addressInputs[i].setAttribute("class", "form-control w-auto");
             });
         }
     }
