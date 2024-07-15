@@ -94,6 +94,7 @@
         }
 
         markers = {};
+        infowindow.close();
     }
 
     function addMarker() {
@@ -127,13 +128,13 @@
                     [adrr]: marker
                 };
 
-                naver.maps.Event.addListener(marker, "click", function(e) {
-                    if (infowindow.getMap()) {
-                        infowindow.close();
-                    } else {
-                        infowindow.setContent(infoContent);
-                        infowindow.open(map, marker);
-                    }
+                naver.maps.Event.addListener(marker, "mouseover", function(e) {
+                    infowindow.setContent(infoContent);
+                    infowindow.open(map, marker);
+                });
+
+                naver.maps.Event.addListener(marker, "mouseout", function(e) {
+                    infowindow.close();
                 });
 
                 addressInputs[i].setAttribute("class", "form-control w-auto");
