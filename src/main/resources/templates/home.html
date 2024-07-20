@@ -87,6 +87,37 @@
         document.getElementById("address").appendChild(newInputGroup);
     }
 
+    function openWindow(marker, name, address) {
+        infowindow.setContent('<div class="container">' +
+            '<h4>' + name + '</h4>' +
+            '<span>' + address + '</span>' +
+            '</div>');
+
+        infowindow.open(map, marker);
+    }
+
+    function closeWindow() {
+        infowindow.close();
+    }
+
+    function toggleInputs(nameInput, addressInput) {
+        if (nameInput.getAttribute("class") == "form-control") {
+            nameInput.setAttribute("class", "form-control border border-success");
+            addressInput.setAttribute("class", "form-control w-auto border border-success");
+        } else {
+            nameInput.setAttribute("class", "form-control");
+            addressInput.setAttribute("class", "form-control w-auto");
+        }
+    }
+
+    function toggleMarker(marker) {
+        if (marker.getIcon()) {
+            marker.setIcon(null);
+        } else {
+            marker.setIcon("/img/pin_default.png");
+        }
+    }
+
     function clearMarkers() {
         const markerInstances = Object.values(markers);
         for (let i = 0; i < markerInstances.length; i++) {
@@ -118,23 +149,17 @@
                     position: new naver.maps.LatLng(items[0].y, items[0].x),
                     map: map
                 });
-                const infoContent = '<div class="container">' +
-                    '<h4>' + nm + '</h4>' +
-                    '<span>' + items[0].roadAddress + '</span>' +
-                    '</div>';
 
                 markers = {
                     ...markers,
                     [adrr]: marker
                 };
 
-                naver.maps.Event.addListener(marker, "mouseover", function(e) {
-                    infowindow.setContent(infoContent);
-                    infowindow.open(map, marker);
-                });
-
-                naver.maps.Event.addListener(marker, "mouseout", function(e) {
-                    infowindow.close();
+                naver.maps.Event.addListener(marker, "mouseover", () => openWindow(marker, nm, items[0].roadAddress));
+                naver.maps.Event.addListener(marker, "mouseout", closeWindow);
+                naver.maps.Event.addListener(marker, "click", () => {
+                    toggleMarker(marker);
+                    toggleInputs(nameInputs[i], addressInputs[i]);
                 });
 
                 addressInputs[i].setAttribute("class", "form-control w-auto");
