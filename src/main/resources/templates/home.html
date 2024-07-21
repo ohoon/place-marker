@@ -48,11 +48,10 @@
     function onSuccessGeolocation(position) {
         const location = new naver.maps.LatLng(position.coords.latitude,
             position.coords.longitude);
-
         map.setCenter(location);
+
         map.setZoom(10);
     }
-
     $(window).on("load", function() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(onSuccessGeolocation, null);
@@ -63,8 +62,49 @@
         }
     });
 
-    let markers = {};
+    const markers = [];
+
     const infowindow = new naver.maps.InfoWindow();
+
+    const htmlMarker1 = {
+            content: '<div style="cursor:pointer;width:40px;height:40px;line-height:42px;font-size:10px;color:white;text-align:center;font-weight:bold;background:url(/img/cluster-marker-1.png);background-size:contain;"></div>',
+            size: N.Size(40, 40),
+            anchor: N.Point(20, 20)
+        },
+        htmlMarker2 = {
+            content: '<div style="cursor:pointer;width:40px;height:40px;line-height:42px;font-size:10px;color:white;text-align:center;font-weight:bold;background:url(/img/cluster-marker-2.png);background-size:contain;"></div>',
+            size: N.Size(40, 40),
+            anchor: N.Point(20, 20)
+        },
+        htmlMarker3 = {
+            content: '<div style="cursor:pointer;width:40px;height:40px;line-height:42px;font-size:10px;color:white;text-align:center;font-weight:bold;background:url(/img/cluster-marker-3.png);background-size:contain;"></div>',
+            size: N.Size(40, 40),
+            anchor: N.Point(20, 20)
+        },
+        htmlMarker4 = {
+            content: '<div style="cursor:pointer;width:40px;height:40px;line-height:42px;font-size:10px;color:white;text-align:center;font-weight:bold;background:url(/img/cluster-marker-4.png);background-size:contain;"></div>',
+            size: N.Size(40, 40),
+            anchor: N.Point(20, 20)
+        },
+        htmlMarker5 = {
+            content: '<div style="cursor:pointer;width:40px;height:40px;line-height:42px;font-size:10px;color:white;text-align:center;font-weight:bold;background:url(/img/cluster-marker-5.png);background-size:contain;"></div>',
+            size: N.Size(40, 40),
+            anchor: N.Point(20, 20)
+        };
+
+    const markerClustering = new MarkerClustering({
+        minClusterSize: 2,
+        maxZoom: 8,
+        map: map,
+        markers: markers,
+        disableClickZoom: false,
+        gridSize: 120,
+        icons: [htmlMarker1, htmlMarker2, htmlMarker3, htmlMarker4, htmlMarker5],
+        indexGenerator: [10, 100, 200, 500, 1000],
+        stylingFunction: function(clusterMarker, count) {
+            $(clusterMarker.getElement()).find('div:first-child').text(count);
+        }
+    });
 
     function addInput() {
         const newNameInput = document.createElement("input");
@@ -133,12 +173,8 @@
     }
 
     function clearMarkers() {
-        const markerInstances = Object.values(markers);
-        for (let i = 0; i < markerInstances.length; i++) {
-            markerInstances[i].setMap(null);
-        }
-
-        markers = {};
+        markers.forEach(marker => marker.setMap(null));
+        markers.splice(0, markers.length);
         infowindow.close();
     }
 
@@ -168,10 +204,7 @@
                     map: map
                 });
 
-                markers = {
-                    ...markers,
-                    [adrr]: marker
-                };
+                markers.push(marker);
 
                 naver.maps.Event.addListener(marker, "mouseover", () => openWindow(marker, nm, items[0].roadAddress));
                 naver.maps.Event.addListener(marker, "mouseout", closeWindow);
