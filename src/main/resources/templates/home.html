@@ -12,6 +12,8 @@
                 <div class="input-group">
                     <input type="text" class="form-control" name="name-input" placeholder="명칭" aria-label="명칭">
                     <input type="text" class="form-control w-auto" name="address-input" placeholder="도로명 주소" aria-label="도로명 주소">
+                    <button class="btn btn-outline-secondary" name="pin-button">고정</button>
+                    <button class="btn btn-outline-secondary" name="location-button">위치로</button>
                 </div>
             </div>
             <div class="row">
@@ -79,10 +81,22 @@
         newAddressInput.setAttribute("placeholder", "도로명 주소");
         newAddressInput.setAttribute("aria-label", "도로명 주소");
 
+        const newPinButton = document.createElement("button");
+        newPinButton.setAttribute("class", "btn btn-outline-secondary");
+        newPinButton.setAttribute("name", "pin-button");
+        newPinButton.textContent = "고정";
+
+        const newLocationButton = document.createElement("button");
+        newLocationButton.setAttribute("class", "btn btn-outline-secondary");
+        newLocationButton.setAttribute("name", "location-button");
+        newLocationButton.textContent = "위치로";
+
         const newInputGroup = document.createElement("div");
         newInputGroup.setAttribute("class", "input-group");
         newInputGroup.appendChild(newNameInput);
         newInputGroup.appendChild(newAddressInput);
+        newInputGroup.appendChild(newPinButton);
+        newInputGroup.appendChild(newLocationButton);
 
         document.getElementById("address").appendChild(newInputGroup);
     }
@@ -101,7 +115,7 @@
     }
 
     function toggleInputs(nameInput, addressInput) {
-        if (nameInput.getAttribute("class") == "form-control") {
+        if (nameInput.getAttribute("class") === "form-control") {
             nameInput.setAttribute("class", "form-control border border-success");
             addressInput.setAttribute("class", "form-control w-auto border border-success");
         } else {
@@ -131,6 +145,8 @@
     function addMarker() {
         const nameInputs = document.getElementsByName("name-input");
         const addressInputs = document.getElementsByName("address-input");
+        const pinButtons = document.getElementsByName("pin-button");
+        const locationButtons = document.getElementsByName("location-button");
         clearMarkers();
         for (let i = 0; i < addressInputs.length; i++) {
             const nm = nameInputs[i].value;
@@ -142,6 +158,8 @@
                     addressInputs[i].setAttribute("class", "form-control w-auto is-invalid");
                     return;
                 }
+
+                addressInputs[i].setAttribute("class", "form-control w-auto");
 
                 const result = response.v2;
                 const items = result.addresses;
@@ -161,8 +179,11 @@
                     toggleMarker(marker);
                     toggleInputs(nameInputs[i], addressInputs[i]);
                 });
-
-                addressInputs[i].setAttribute("class", "form-control w-auto");
+                pinButtons[i].addEventListener("click", () => {
+                    toggleMarker(marker);
+                    toggleInputs(nameInputs[i], addressInputs[i]);
+                });
+                locationButtons[i].addEventListener("click", () => openWindow(marker, nm, items[0].roadAddress));
             });
         }
     }
