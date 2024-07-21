@@ -25,6 +25,12 @@
             <div class="row">
                 <button class="btn btn-outline-secondary"
                         type="button"
+                        onclick="reset()"
+                >초기화</button>
+            </div>
+            <div class="row">
+                <button class="btn btn-outline-secondary"
+                        type="button"
                         onclick="addMarker()"
                 >마커 추가</button>
             </div>
@@ -219,6 +225,12 @@
                 locationButtons[i].addEventListener("click", () => openWindow(marker, nm, items[0].roadAddress));
             });
         }
+    }
+
+    function reset() {
+        document.getElementById("address").innerHTML = '';
+        addInput();
+        clearMarkers();
     }
 </script>
 </body>
