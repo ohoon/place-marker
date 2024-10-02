@@ -19,7 +19,7 @@
             <div class="row">
                 <button class="btn btn-outline-secondary"
                         type="button"
-                        onclick="addInput()"
+                        onclick="addEmptyInput()"
                 ><i class="bi bi-plus-circle"></i></button>
             </div>
             <div class="row mt-3">
@@ -36,10 +36,38 @@
             </div>
             <div class="row">
                 <div class="btn-group">
+                    <input
+                        type="file"
+                        id="csv-file"
+                        onchange="handleFile(this)"
+                        style="display: none"
+                    />
+                    <button class="btn btn-primary"
+                            type="button"
+                            id="show-modal-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#fetch-data-modal"
+                            style="display: none"
+                    >show modal</button>
                     <button class="btn btn-outline-secondary"
                             type="button"
-                            onclick=""
+                            id="load-file-btn"
                     >csv 불러오기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="fetch-data-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">CSV 데이터 설정</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="modal-close-btn" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" id="fetch-data-btn">가져오기</button>
                 </div>
             </div>
         </div>
@@ -120,7 +148,7 @@
         }
     });
 
-    function addInput() {
+    function addEmptyInput() {
         const newNameInput = document.createElement("input");
         newNameInput.setAttribute("type", "text");
         newNameInput.setAttribute("class", "form-control");
@@ -132,6 +160,43 @@
         newAddressInput.setAttribute("type", "text");
         newAddressInput.setAttribute("class", "form-control w-auto");
         newAddressInput.setAttribute("name", "address-input");
+        newAddressInput.setAttribute("placeholder", "도로명 주소");
+        newAddressInput.setAttribute("aria-label", "도로명 주소");
+
+        const newPinButton = document.createElement("button");
+        newPinButton.setAttribute("class", "btn btn-outline-secondary");
+        newPinButton.setAttribute("name", "pin-button");
+        newPinButton.textContent = "고정";
+
+        const newLocationButton = document.createElement("button");
+        newLocationButton.setAttribute("class", "btn btn-outline-secondary");
+        newLocationButton.setAttribute("name", "location-button");
+        newLocationButton.textContent = "위치로";
+
+        const newInputGroup = document.createElement("div");
+        newInputGroup.setAttribute("class", "input-group");
+        newInputGroup.appendChild(newNameInput);
+        newInputGroup.appendChild(newAddressInput);
+        newInputGroup.appendChild(newPinButton);
+        newInputGroup.appendChild(newLocationButton);
+
+        document.getElementById("address").appendChild(newInputGroup);
+    }
+
+    function addInput(name, address) {
+        const newNameInput = document.createElement("input");
+        newNameInput.setAttribute("type", "text");
+        newNameInput.setAttribute("class", "form-control");
+        newNameInput.setAttribute("name", "name-input");
+        newNameInput.setAttribute("value", name);
+        newNameInput.setAttribute("placeholder", "명칭");
+        newNameInput.setAttribute("aria-label", "명칭");
+
+        const newAddressInput = document.createElement("input");
+        newAddressInput.setAttribute("type", "text");
+        newAddressInput.setAttribute("class", "form-control w-auto");
+        newAddressInput.setAttribute("name", "address-input");
+        newAddressInput.setAttribute("value", address);
         newAddressInput.setAttribute("placeholder", "도로명 주소");
         newAddressInput.setAttribute("aria-label", "도로명 주소");
 
@@ -201,6 +266,10 @@
         for (let i = 0; i < addressInputs.length; i++) {
             const nm = nameInputs[i].value;
             const adrr = addressInputs[i].value;
+            if (adrr == '') {
+                continue;
+            }
+
             naver.maps.Service.geocode({
                 query: adrr
             }, function(status, response) {
@@ -237,8 +306,57 @@
 
     function reset() {
         document.getElementById("address").innerHTML = '';
-        addInput();
+        addEmptyInput();
         clearMarkers();
+    }
+
+    $('#load-file-btn').click(e => {
+        e.preventDefault();
+        $('#csv-file').click();
+    });
+
+    function handleFile(e) {
+        if (e.files && e.files.length > 0) {
+            const fileReader = new FileReader();
+            fileReader.readAsText(e.files[0], 'EUC-KR');
+            fileReader.onloadend = e => {
+                e?.target?.result &&
+                setColumnOptions(e.target.result.toString()
+                    .split('\r\n')
+                    .filter(row => row.length > 0)
+                    .map(row => row.split(',')));
+                $('#show-modal-btn').click();
+            }
+        } else {
+            alert("불러오기 실패");
+        }
+    }
+
+    function setColumnOptions(matrix) {
+        $('#modal-body').html(`
+            <div class="input-group">
+                <select class="form-select" id="name-col">
+                  <option selected disabled hidden>명칭</option>
+                  ${matrix[0].map((text, index) => '<option value=' + index + '>' + text + '</option>')};
+                </select>
+                <select class="form-select" id="address-col">
+                  <option selected disabled hidden>도로명 주소</option>
+                  ${matrix[0].map((text, index) => '<option value=' + index + '>' + text + '</option>')};
+                </select>
+            </div>
+        `);
+        $('#fetch-data-btn')[0].onclick = (() => fetchData(matrix));
+    }
+
+    function fetchData(matrix) {
+        const nameColNum = $('#name-col')[0].selectedIndex - 1;
+        const addressColNum = $('#address-col')[0].selectedIndex - 1;
+        if (nameColNum < 0 || addressColNum < 0) {
+            return alert("열을 선택해주세요.");
+        }
+
+        matrix.forEach(row => addInput(row[nameColNum], row[addressColNum]));
+        $('#modal-close-btn').click();
     }
 </script>
 </body>
