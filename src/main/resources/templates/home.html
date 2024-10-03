@@ -18,6 +18,9 @@
                     <button class="btn btn-outline-secondary" name="location-button">
                         <i class='bi bi-geo-alt-fill'></i>
                     </button>
+                    <button class="btn btn-outline-secondary" name="remove-button" onclick="removeInput(this)">
+                        <i class='bi bi-trash3-fill'></i>
+                    </button>
                 </div>
             </div>
             <div class="row">
@@ -177,12 +180,19 @@
         newLocationButton.setAttribute("name", "location-button");
         newLocationButton.innerHTML = "<i class=\'bi bi-geo-alt-fill\'></i>";
 
+        const newRemoveButton = document.createElement("button");
+        newRemoveButton.setAttribute("class", "btn btn-outline-secondary");
+        newRemoveButton.setAttribute("name", "remove-button");
+        newRemoveButton.onclick = () => removeInput(newRemoveButton);
+        newRemoveButton.innerHTML = "<i class=\'bi bi-trash3-fill\'></i>";
+
         const newInputGroup = document.createElement("div");
         newInputGroup.setAttribute("class", "input-group");
         newInputGroup.appendChild(newNameInput);
         newInputGroup.appendChild(newAddressInput);
         newInputGroup.appendChild(newPinButton);
         newInputGroup.appendChild(newLocationButton);
+        newInputGroup.appendChild(newRemoveButton);
 
         document.getElementById("address").appendChild(newInputGroup);
     }
@@ -214,14 +224,26 @@
         newLocationButton.setAttribute("name", "location-button");
         newLocationButton.innerHTML = "<i class=\'bi bi-geo-alt-fill\'></i>";
 
+        const newRemoveButton = document.createElement("button");
+        newRemoveButton.setAttribute("class", "btn btn-outline-secondary");
+        newRemoveButton.setAttribute("name", "remove-button");
+        newRemoveButton.onclick = () => removeInput(newRemoveButton);
+        newRemoveButton.innerHTML = "<i class=\'bi bi-trash3-fill\'></i>";
+
         const newInputGroup = document.createElement("div");
         newInputGroup.setAttribute("class", "input-group");
         newInputGroup.appendChild(newNameInput);
         newInputGroup.appendChild(newAddressInput);
         newInputGroup.appendChild(newPinButton);
         newInputGroup.appendChild(newLocationButton);
+        newInputGroup.appendChild(newRemoveButton);
 
         document.getElementById("address").appendChild(newInputGroup);
+    }
+
+    function removeInput(removeBtn) {
+        const inputGroup = removeBtn.parentNode;
+        return inputGroup.remove();
     }
 
     function openWindow(marker, name, address) {
