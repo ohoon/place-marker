@@ -12,8 +12,12 @@
                 <div class="input-group">
                     <input type="text" class="form-control" name="name-input" placeholder="명칭" aria-label="명칭">
                     <input type="text" class="form-control w-auto" name="address-input" placeholder="도로명 주소" aria-label="도로명 주소">
-                    <button class="btn btn-outline-secondary" name="pin-button">고정</button>
-                    <button class="btn btn-outline-secondary" name="location-button">위치로</button>
+                    <button class="btn btn-outline-secondary" name="pin-button">
+                        <i class='bi bi-pin-angle-fill'></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" name="location-button">
+                        <i class='bi bi-geo-alt-fill'></i>
+                    </button>
                 </div>
             </div>
             <div class="row">
@@ -166,12 +170,12 @@
         const newPinButton = document.createElement("button");
         newPinButton.setAttribute("class", "btn btn-outline-secondary");
         newPinButton.setAttribute("name", "pin-button");
-        newPinButton.textContent = "고정";
+        newPinButton.innerHTML = "<i class=\'bi bi-pin-angle-fill\'></i>";
 
         const newLocationButton = document.createElement("button");
         newLocationButton.setAttribute("class", "btn btn-outline-secondary");
         newLocationButton.setAttribute("name", "location-button");
-        newLocationButton.textContent = "위치로";
+        newLocationButton.innerHTML = "<i class=\'bi bi-geo-alt-fill\'></i>";
 
         const newInputGroup = document.createElement("div");
         newInputGroup.setAttribute("class", "input-group");
@@ -203,12 +207,12 @@
         const newPinButton = document.createElement("button");
         newPinButton.setAttribute("class", "btn btn-outline-secondary");
         newPinButton.setAttribute("name", "pin-button");
-        newPinButton.textContent = "고정";
+        newPinButton.innerHTML = "<i class=\'bi bi-pin-angle-fill\'></i>";
 
         const newLocationButton = document.createElement("button");
         newLocationButton.setAttribute("class", "btn btn-outline-secondary");
         newLocationButton.setAttribute("name", "location-button");
-        newLocationButton.textContent = "위치로";
+        newLocationButton.innerHTML = "<i class=\'bi bi-geo-alt-fill\'></i>";
 
         const newInputGroup = document.createElement("div");
         newInputGroup.setAttribute("class", "input-group");
